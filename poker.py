@@ -2,6 +2,18 @@ def poker(hands):
     "Return the best hand: poker([hand,...]) => hand"
     return max(hands, key=hand_rank)
 
+def allmax(iterable, key=None):
+    return [x for x in iterable if key(x) == key(max(iterable, key=key))]
+    # # This solution is given by teacher, all passed the test
+    # for x in iterable:
+    #     xval = key(x)
+    #     if not res or xval > maxval:
+    #         res, maxval = [x], xval
+    #     elif xval == maxval:
+    #         res.append(x)
+    # return res
+
+
 def card_ranks(cards):
     "Return a list of the ranks, sorted with higher first"
     ranks = ['--23456789TJQKA'.index(r) for r,s in cards]
@@ -10,7 +22,10 @@ def card_ranks(cards):
 
 def straight(ranks):
     "Return True if the ordered ranks form a 5-card straight."
-    return (max(ranks) == min(ranks) + 4) and len(set(ranks)) == 5
+    if ranks == [14, 5, 4, 3, 2]:
+        return True
+    else:
+        return (max(ranks) == min(ranks) + 4) and len(set(ranks)) == 5
 
 def flush(hand):
     "Return True if all the cards have the same suit."
@@ -26,18 +41,17 @@ def kind(n, ranks):
     return None
 
 # why this failed?
-def two_pair(rank):
+def two_pair(ranks):
     res = []
-    for r in rank:
-        if 2 == rank.count(r) and 0 ==res.count(r):
+    for r in ranks:
+        if 2 == ranks.count(r) and 0 ==res.count(r):
             res.append(r)
-
     if len(res) == 2:
         return tuple(res)
     else:
         return None
 
-# this is the solution teacher given
+# this is the solution teacher given, both passed
 # def two_pair(rank):
 #     """If there are two pair, return the two ranks as a
 #     tuple: (highest, lowest); otherwise return None."""
@@ -76,6 +90,7 @@ def test():
     fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
     fh = "TD TC TH 7C 7D".split() # Full House
     tp = "5D 5H 9H 9C 3S".split() # Two Pair
+    s5 = "5D 4C 3H 2D AC".split()
     fkranks = card_ranks(fk)
     tpranks = card_ranks(tp)
 
@@ -89,16 +104,14 @@ def test():
     assert two_pair(fkranks) == None
     assert two_pair(tpranks) == (9, 5)
     assert two_pair(card_ranks(sf)) == None
-    print two_pair([9,8,6,4,2])
-    #assert two_pair([3,3,4,5,5]) == (5,3)
-
-    tp2 = "TD 9H TH 9C 3S".split()  # Two Pair2
-    tpranks2 = card_ranks(tp2)
-    print two_pair(tpranks2)
+    assert two_pair([5, 5, 4, 3, 3]) == (5,3)
 
     assert straight(card_ranks(sf)) == True
     assert straight([6, 5, 4, 3, 2]) == True
     assert straight([9, 8, 8, 6, 5]) == False
+    assert straight([14, 13, 12, 11, 10]) == True
+    assert straight([14, 5, 4, 3, 2]) == True
+    assert straight(card_ranks(s5)) == True
 
     assert flush(sf) == True
     assert flush(fk) == False
@@ -113,6 +126,10 @@ def test():
     assert poker([sf]) == sf
     assert poker([sf]+99*[fh]) == sf
 
+    assert allmax([sf, sf], hand_rank) == [sf, sf]
+    tt = 100*[sf]
+    assert allmax(tt+22*[fk]+12*[fh], hand_rank) == tt
+
     assert hand_rank(sf) == (8, 10)
     assert hand_rank(fk) == (7, 9, 7)
     assert hand_rank(fh) == (6, 10, 7, [10, 10, 10, 7, 7])
@@ -120,3 +137,4 @@ def test():
     return "test pass"
 
 print test()
+#print timeit.timeit('test', 'from poker import test',number=10000000)
