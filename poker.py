@@ -1,6 +1,7 @@
 def poker(hands):
     "Return the best hand: poker([hand,...]) => hand"
-    return max(hands, key=hand_rank)
+    return max(hands, key=hand_rank3)
+    #return max(hands, key=hand_rank) or hand_rank2
 
 def allmax(iterable, key=None):
     return [x for x in iterable if key(x) == key(max(iterable, key=key))]
@@ -83,6 +84,48 @@ def hand_rank(hand):
     else:  # high card
         return  (0, ranks)
 
+def hand_rank2(hand):
+    "Return a value indicating how high the hand ranks"
+    # counts is the count of each rank; ranks lists corresponding ranks
+    # E.g. '7 T 7 9 7' => counts = (3, 1, 1); ranks = (7, 10, 9)
+    groups = group(['--23456789TJQKA'.index(r) for r,s in hand])
+    counts, ranks = unzip(groups)
+    if ranks == (14, 5, 4, 3, 2):
+        ranks = (5, 4, 3, 2, 1)
+    is_straight = len(ranks) == 5 and max(ranks) - min(ranks) == 4
+    is_flush = len(set(s for r,s in hand)) == 1
+    return (9 if (5,) == counts else
+            8 if is_straight and is_flush else
+            7 if (4,1) == counts else
+            6 if (3,2) == counts else
+            5 if is_flush else
+            4 if is_straight else
+            3 if (3,1,1) == counts else
+            2 if (2,2,1) == counts else
+            1 if (2,1,1,1) == counts else
+            0), ranks
+
+def group(ranks):
+    "Return a list of [(count, x), ...], highest count first, then highest x first"
+    groups = [(ranks.count(x), x) for x in set(ranks)]
+    return sorted(groups, reverse=True)
+
+def unzip(pairs):
+    return zip(*pairs)
+
+def hand_rank3(hand):
+    "Return a value indicating how high the hand ranks"
+    # counts is the count of each rank; ranks lists corresponding ranks
+    # E.g. '7 T 7 9 7' => counts = (3, 1, 1); ranks = (7, 10, 9)
+    count_rankings = {(5,):10, (4,1):7, (3,2):6, (3,1,1):3, (2,2,1):2, (2,1,1,1):1, (1,1,1,1,1):0}
+    groups = group(['--23456789TJQKA'.index(r) for r,s in hand])
+    counts, ranks = unzip(groups)
+    if ranks == (14, 5, 4, 3, 2):
+        ranks = (5, 4, 3, 2, 1)
+    is_straight = len(ranks) == 5 and max(ranks) - min(ranks) == 4
+    is_flush = len(set(s for r,s in hand)) == 1
+    return max(count_rankings[counts], 4*is_straight+5*is_flush), ranks
+
 def test():
     "Test cases for the functions in poker program."
     sf = "6C 7C 8C 9C TC".split() # Straight Flush
@@ -92,6 +135,10 @@ def test():
     s5 = "5D 4C 3H 2D AC".split()
     fkranks = card_ranks(fk)
     tpranks = card_ranks(tp)
+
+    assert group([5,5,7,7,7]) == [(3,7),(2,5)]
+    assert group([5, 10, 5, 14, 14]) == [(2, 14), (2, 5), (1, 10)]
+    assert group([5, 2, 3, 14, 4]) == [(1, 14), (1, 5), (1, 4), (1, 3), (1, 2)]
 
     assert kind(4, fkranks) == 9
     assert kind(3, fkranks) == None
@@ -125,13 +172,20 @@ def test():
     assert poker([sf]) == sf
     assert poker([sf]+99*[fh]) == sf
 
-    assert allmax([sf, sf], hand_rank) == [sf, sf]
-    tt = 100*[sf]
-    assert allmax(tt+22*[fk]+12*[fh], hand_rank) == tt
+    assert allmax([sf, sf], hand_rank3) == [sf, sf]
+    assert allmax(2*[sf]+3*[fk]+4*[fh], hand_rank3) == 2*[sf]
 
     assert hand_rank(sf) == (8, 10)
     assert hand_rank(fk) == (7, 9, 7)
     assert hand_rank(fh) == (6, 10, 7, [10, 10, 10, 7, 7])
+
+    assert hand_rank2(sf) == (8, (10, 9, 8, 7, 6))
+    assert hand_rank2(fk) == (7, (9, 7))
+    assert hand_rank2(fh) == (6, (10, 7))
+
+    assert hand_rank3(sf) == (9, (10, 9, 8, 7, 6))
+    assert hand_rank3(fk) == (7, (9, 7))
+    assert hand_rank3(fh) == (6, (10, 7))
 
     return "test pass"
 

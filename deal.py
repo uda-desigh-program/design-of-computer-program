@@ -31,6 +31,6 @@ def hands_percentages(n=700*1000):
         print "%6.3f %%" % (100.0*t/n)
 
 
-print deal(8, n = 2,deck=mydeck)
-hands_percentages()
+#print deal(8, n = 2,deck=mydeck)
+#hands_percentages(n=10000)
 # https://en.wikipedia.org/wiki/Poker_probability
