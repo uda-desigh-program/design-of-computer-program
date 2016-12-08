@@ -40,7 +40,6 @@ def kind(n, ranks):
             return r
     return None
 
-# why this failed?
 def two_pair(ranks):
     res = []
     for r in ranks:
