@@ -27,7 +27,7 @@ def memo(f):
             return result
         except TypeError:
             # some element of args can't be a dict key
-            return f(args)
+            return f(*args)
     return _f
 
 @decorator
@@ -51,6 +51,6 @@ def trace(f):
 @trace
 def fib(n): return 1 if n<=1 else fib(n-1)+fib(n-2)
 
-print fib(6)
-print callcounts[fib]
+#print fib(6)
+#print callcounts[fib]
 #print help(fib)
