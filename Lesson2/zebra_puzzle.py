@@ -51,7 +51,7 @@ def c(sequence):
 def instrument_fn(fn, *args):
     c.starts, c.items = 0, 0
     result = fn(*args)
-    print '%s got %s with %5d iters over %7d items' % (fn.__name__, result, c.starts, c.items)
+    #print '%s got %s with %5d iters over %7d items' % (fn.__name__, result, c.starts, c.items)
 
 import time
 
